@@ -100,6 +100,7 @@ fi
 
 # Create directories for Dav data and lock database.
 [ ! -d "/var/lib/dav/data" ] && mkdir -p "/var/lib/dav/data"
+[ ! -d "/var/lib/dav/data/rucio" ] && mkdir -p "/var/lib/dav/data/rucio"
 [ ! -e "/var/lib/dav/DavLock" ] && touch "/var/lib/dav/DavLock"
 chown -R www-data:www-data "/var/lib/dav"
 

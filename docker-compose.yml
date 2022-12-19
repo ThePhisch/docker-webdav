@@ -1,0 +1,12 @@
+version: '3'
+services:
+  webdav:
+    image: thephisch/webdavtry
+    restart: always
+    ports:
+      - "9002:443"
+    environment:
+      AUTH_TYPE: Basic
+      USERNAME: alice
+      PASSWORD: secret1234
+      SSL_CERT: selfsigned

@@ -1,4 +1,4 @@
-FROM httpd:alpine
+FROM httpd:bullseye
 
 # These variables are inherited from the httpd:alpine image:
 # ENV HTTPD_PREFIX /usr/local/apache2
@@ -6,6 +6,8 @@ FROM httpd:alpine
 
 # Copy in our configuration files.
 COPY conf/ conf/
+COPY hostcert_web1.key.pem /web1key.pem
+COPY hostcert_web1.pem /web1cert.pem
 
 RUN set -ex; \
     # Create empty default DocumentRoot.
@@ -41,13 +43,19 @@ RUN set -ex; \
     printf '%s\n' "Include conf/sites-enabled/*.conf" \
         >> "conf/httpd.conf"; \
     \
+    # Write output to file and to std(err|out)???
+    sed -i -e 's/\/proc\/self\/fd\/2/"|\$tee -a \/proc\/self\/fd\/2 \/usr\/local\/apache2\/logs\/apacheerrors.log"/g' conf/httpd.conf; \
+    sed -i -e 's/LogLevel warn/LogLevel debug/g' conf/httpd.conf; \
+    touch logs/apacheerrors.log; \
+    \
     # Enable dav and default site.
     mkdir -p "conf/conf-enabled"; \
     mkdir -p "conf/sites-enabled"; \
     ln -s ../conf-available/dav.conf "conf/conf-enabled"; \
     ln -s ../sites-available/default.conf "conf/sites-enabled"; \
     # Install openssl if we need to generate a self-signed certificate.
-    apk add --no-cache openssl
+    # apk add --no-cache openssl
+    apt-get install openssl
 
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
 EXPOSE 80/tcp 443/tcp
